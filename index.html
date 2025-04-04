@@ -1,0 +1,1117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Admission Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        main {
+            max-width: 1000px;
+            margin: 10px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        main::-webkit-scrollbar {
+            width: 10px;
+        }
+        main::-webkit-scrollbar-track {
+            background: #f7f9fc;
+        }
+        main::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            border-radius: 5px;
+        }
+        #progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        #progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            width: 0;
+            transition: width 0.5s ease;
+        }
+        .form-section {
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box, linear-gradient(90deg, #6a11cb, #2575fc) border-box;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .form-section:hover {
+            transform: translateY(-5px);
+        }
+        .form-section h2 {
+            background: #f7f9fc;
+            padding: 15px;
+            margin: 0;
+            cursor: pointer;
+            color: #6a11cb;
+            font-size: 1.3em;
+            transition: background 0.3s;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .form-section h2:hover, .form-section h2:focus {
+            background: #e9ecef;
+            outline: 2px solid #2575fc;
+            outline-offset: 2px;
+        }
+        .form-section h2 i {
+            margin-right: 10px;
+        }
+        .form-section .content {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-section.collapsed .content {
+            display: none;
+        }
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
+        }
+        label::after {
+            content: '*';
+            color: #ff4d4d;
+            margin-left: 3px;
+        }
+        label[for="quota"]::after {
+            content: '';
+        }
+        .tooltip {
+            position: relative;
+            cursor: help;
+            color: #2575fc;
+            margin-left: 5px;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background: #333;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltip-text, .tooltip:focus .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #2575fc;
+            outline: none;
+        }
+        textarea {
+            resize: vertical;
+        }
+        input[type="file"] {
+            padding: 5px;
+        }
+        #picture-preview img, #ssc-transcript-preview img, #hsc-transcript-preview img {
+            max-width: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .error {
+            color: #ff4d4d;
+            font-size: 0.9em;
+            display: none;
+            margin-top: -5px;
+        }
+        #loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            color: #2575fc;
+            z-index: 1003;
+        }
+        #loading-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1002;
+        }
+        .loader {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+        }
+        .loader-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            border-radius: 50%;
+            animation: orbit 2s infinite ease-in-out;
+        }
+        .loader-dot:nth-child(1) { transform: translate(34px, 0); animation-delay: 0s; }
+        .loader-dot:nth-child(2) { transform: translate(56px, 22px); animation-delay: -0.2s; }
+        .loader-dot:nth-child(3) { transform: translate(56px, 56px); animation-delay: -0.4s; }
+        .loader-dot:nth-child(4) { transform: translate(34px, 68px); animation-delay: -0.6s; }
+        .loader-dot:nth-child(5) { transform: translate(0, 56px); animation-delay: -0.8s; }
+        .loader-dot:nth-child(6) { transform: translate(-22px, 22px); animation-delay: -1s; }
+        @keyframes orbit {
+            0%, 100% { transform: scale(1) translate(34px, 0); }
+            25% { transform: scale(1.5) translate(56px, 22px); }
+            50% { transform: scale(1) translate(56px, 56px); }
+            75% { transform: scale(1.5) translate(0, 56px); }
+        }
+        .loader-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #2575fc, #6a11cb);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.3); }
+        }
+        .form-actions {
+            text-align: right;
+            padding: 20px;
+            background: #f7f9fc;
+            border-top: 1px solid #eee;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+        button:hover, button:focus {
+            transform: scale(1.05);
+            outline: 2px solid #2575fc;
+            outline-offset: 2px;
+        }
+        #save-draft {
+            background: #6c757d;
+            color: white;
+        }
+        #save-draft:hover {
+            background: #5a6268;
+        }
+        #submit-btn {
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            color: white;
+        }
+        #submit-btn:hover {
+            background: linear-gradient(90deg, #5a0ea6, #1e63d8);
+        }
+        #review-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 80%;
+            max-width: 800px;
+            background: white;
+            border: 3px solid transparent;
+            background: linear-gradient(white, white) padding-box, linear-gradient(90deg, #6a11cb, #2575fc) border-box;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            display: none;
+            animation: modalFadeIn 0.3s ease forwards;
+        }
+        @keyframes modalFadeIn {
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        #review-modal .header {
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 15px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        #review-modal .content {
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        #review-modal .picture {
+            flex: 0 0 200px;
+        }
+        #review-modal .picture img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+        #review-modal .details {
+            flex: 1;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        #review-modal .section {
+            margin-bottom: 20px;
+            background: #f7f9fc;
+            padding: 15px;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        #review-modal .section:hover {
+            transform: translateY(-5px);
+        }
+        #review-modal .section h4 {
+            margin: 0 0 10px;
+            color: #6a11cb;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #review-modal .section p {
+            margin: 5px 0;
+            font-size: 1em;
+            color: #333;
+        }
+        #review-modal .buttons {
+            text-align: right;
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        #review-modal button {
+            padding: 12px 30px;
+            font-size: 1.1em;
+        }
+        #review-modal #confirm-submit {
+            background: linear-gradient(90deg, #28a745, #218838);
+        }
+        #review-modal #confirm-submit:hover {
+            background: linear-gradient(90deg, #218838, #1e7e34);
+        }
+        #review-modal #cancel-submit, #review-modal #edit-submit, #review-modal #print-review {
+            background: #dc3545;
+            color: white;
+        }
+        #review-modal #cancel-submit:hover, #review-modal #edit-submit:hover, #review-modal #print-review:hover {
+            background: #c82333;
+        }
+        #modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+        #success-modal, #error-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 1002;
+        }
+        #success-modal i {
+            color: #28a745;
+            font-size: 3em;
+        }
+        #error-modal i {
+            color: #dc3545;
+            font-size: 3em;
+        }
+        
+        
+        .declaration-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+}
+
+.declaration-container input[type="checkbox"] {
+    margin: 0; 
+    width: 20px; 
+    height: 20px;
+    cursor: pointer;
+}
+
+.declaration-container label {
+    margin: 0; 
+    font-weight: normal; 
+    color: #333;
+}
+
+.declaration-container label::after {
+    content: ''; 
+}
+        
+        
+        
+        
+        
+        
+        
+    </style>
+</head>
+<body>
+    <header>
+        <h1>University Admission Portal</h1>
+    </header>
+
+    <main>
+        <div id="progress-bar"><div id="progress-fill"></div></div>
+        <form id="admission-form">
+            <!-- Personal Information -->
+            <section class="form-section" aria-labelledby="personal-info-heading">
+                <h2 id="personal-info-heading" tabindex="0"><i class="fas fa-user"></i> Personal Information</h2>
+                <div class="content">
+                    <div>
+                        <label for="name">Full Name:</label>
+                        <input type="text" id="name" name="name" autocomplete="name" required>
+                        <span class="error" id="name-error">Please enter your full name.</span>
+                    </div>
+                    <div>
+                        <label for="email">Email:<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">Your active email address</span></span></label>
+                        <input type="email" id="email" name="email" autocomplete="email" required>
+                        <span class="error" id="email-error">Please enter a valid email.</span>
+                    </div>
+                    <div>
+                        <label for="dob">Date of Birth:</label>
+                        <input type="date" id="dob" name="dob" required>
+                    </div>
+                    <div>
+                        <label for="gender">Gender:</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="phone">Phone Number:<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">11-digit mobile number</span></span></label>
+                        <input type="tel" id="phone" name="phone" autocomplete="tel" pattern="[0-9]{11}" required>
+                        <span class="error" id="phone-error">Enter a valid 11-digit number.</span>
+                    </div>
+                    <div>
+                        <label for="address">Permanent Address:</label>
+                        <textarea id="address" name="address" rows="3" required></textarea>
+                    </div>
+                    <div>
+                        <label for="father-name">Father's Name:</label>
+                        <input type="text" id="father-name" name="father-name" required>
+                        <span class="error" id="father-name-error">Please enter your father's name.</span>
+                    </div>
+                    <div>
+                        <label for="father-nid">Father's NID Number:<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">10-digit National ID</span></span></label>
+                        <input type="text" id="father-nid" name="father-nid" pattern="[0-9]{10}" required>
+                        <span class="error" id="father-nid-error">Enter a valid 10-digit NID.</span>
+                    </div>
+                    <div>
+                        <label for="mother-name">Mother's Name:</label>
+                        <input type="text" id="mother-name" name="mother-name" required>
+                        <span class="error" id="mother-name-error">Please enter your mother's name.</span>
+                    </div>
+                    <div>
+                        <label for="mother-nid">Mother's NID Number:<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">10-digit National ID</span></span></label>
+                        <input type="text" id="mother-nid" name="mother-nid" pattern="[0-9]{10}" required>
+                        <span class="error" id="mother-nid-error">Enter a valid 10-digit NID.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SSC Details -->
+            <section class="form-section" aria-labelledby="ssc-heading">
+                <h2 id="ssc-heading" tabindex="0"><i class="fas fa-graduation-cap"></i> SSC Details</h2>
+                <div class="content">
+                    <div>
+                        <label for="ssc-roll">SSC Roll Number:</label>
+                        <input type="text" id="ssc-roll" name="ssc-roll" required>
+                    </div>
+                    <div>
+                        <label for="ssc-reg">SSC Registration Number:</label>
+                        <input type="text" id="ssc-reg" name="ssc-reg" required>
+                    </div>
+                    <div>
+                        <label for="ssc-gpa">SSC GPA:<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">Out of 5.00</span></span></label>
+                        <input type="number" id="ssc-gpa" name="ssc-gpa" step="0.01" min="0" max="5" required>
+                    </div>
+                    <div>
+                        <label for="ssc-board">SSC Board:</label>
+                        <select id="ssc-board" name="ssc-board" required>
+                            <option value="">Select Board</option>
+                            <option value="Dhaka">Dhaka</option>
+                            <option value="Chittagong">Chittagong</option>
+                            <option value="Rajshahi">Rajshahi</option>
+                            <option value="Sylhet">Sylhet</option>
+                            <option value="Mymensingh">Mymensingh</option>
+                            <option value="Cumilla">Cumilla</option>
+                            <option value="Dinajpur">Dinajpur</option>
+                            <option value="Barishal">Barishal</option>
+                            <option value="Madrasa">Madrasa</option>
+                            <option value="Vocational">Vocational</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="ssc-year">SSC Passing Year:</label>
+                        <input type="number" id="ssc-year" name="ssc-year" min="2000" max="2025" required>
+                    </div>
+                    <div>
+                        <label for="ssc-group">SSC Group:</label>
+                        <select id="ssc-group" name="ssc-group" required>
+                            <option value="">Select Group</option>
+                            <option value="Science">Science</option>
+                            <option value="Commerce">Commerce</option>
+                            <option value="Humanities">Humanities</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HSC Details -->
+            <section class="form-section" aria-labelledby="hsc-heading">
+                <h2 id="hsc-heading" tabindex="0"><i class="fas fa-graduation-cap"></i> HSC Details</h2>
+                <div class="content">
+                    <div>
+                        <label for="hsc-roll">HSC Roll Number:</label>
+                        <input type="text" id="hsc-roll" name="hsc-roll" required>
+                    </div>
+                    <div>
+                        <label for="hsc-reg">HSC Registration Number:</label>
+                        <input type="text" id="hsc-reg" name="hsc-reg" required>
+                    </div>
+                    <div>
+                        <label for="hsc-gpa">HSC GPA:<span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">Out of 5.00</span></span></label>
+                        <input type="number" id="hsc-gpa" name="hsc-gpa" step="0.01" min="0" max="5" required>
+                    </div>
+                    <div>
+                        <label for="hsc-board">HSC Board:</label>
+                        <select id="hsc-board" name="hsc-board" required>
+                            <option value="">Select Board</option>
+                            <option value="Dhaka">Dhaka</option>
+                            <option value="Chittagong">Chittagong</option>
+                            <option value="Rajshahi">Rajshahi</option>
+                             <option value="Sylhet">Sylhet</option>
+                           <option value="Mymensingh">Mymensingh</option>
+                           <option value="Cumilla">Cumilla</option>
+                           <option value="Dinajpur">Dinajpur</option>
+                           <option value="Barishal">Barishal</option>
+                           <option value="Madrasa">Madrasa</option>
+                           <option value="Vocational">Vocational</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="hsc-year">HSC Passing Year:</label>
+                        <input type="number" id="hsc-year" name="hsc-year" min="2000" max="2025" required>
+                    </div>
+                    <div>
+                        <label for="hsc-group">HSC Group:</label>
+                        <select id="hsc-group" name="hsc-group" required>
+                            <option value="">Select Group</option>
+                            <option value="Science">Science</option>
+                            <option value="Commerce">Commerce</option>
+                            <option value="Humanities">Humanities
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Program & Institution -->
+            <section class="form-section" aria-labelledby="program-heading">
+                <h2 id="program-heading" tabindex="0"><i class="fas fa-book"></i> Program & Institution</h2>
+                <div class="content">
+                    <div>
+                        <label for="program">Intended Program:</label>
+                        <select id="program" name="program" required>
+                            <option value="">Select Program</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Medical & Dental">Medical & Dental</option>
+                            <option value="Varsity Ka">Varsity Ka</option>
+                            <option value="Varsity Kha">Varsity Kha</option>
+                            <option value="IBA & BBA">IBA & BBA</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="quota">Quota (if any):</label>
+                        <select id="quota" name="quota">
+                            <option value="None">None</option>
+                            <option value="FF">Freedom Fighter</option>
+                            <option value="Tribal">Tribal</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="institution">Institution Name:</label>
+                        <input type="text" id="institution" name="institution" required>
+                        <span class="error" id="institution-error">Please enter your institution name.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Uploads -->
+            <section class="form-section" aria-labelledby="uploads-heading">
+                <h2 id="uploads-heading" tabindex="0"><i class="fas fa-upload"></i> Uploads</h2>
+                <div class="content">
+                    <div>
+                        <label for="picture">Upload Picture:</label>
+                        <input type="file" id="picture" name="picture" accept="image/*" required>
+                        <span class="error" id="picture-error">Please upload a picture (max 2MB).</span>
+                        <div id="picture-preview"></div>
+                    </div>
+                    <div>
+                        <label for="ssc-transcript">SSC Transcript:</label>
+                        <input type="file" id="ssc-transcript" name="ssc-transcript" accept="image/*,.pdf" required>
+                        <span class="error" id="ssc-transcript-error">Please upload a file (max 2MB).</span>
+                        <div id="ssc-transcript-preview"></div>
+                    </div>
+                    <div>
+                        <label for="hsc-transcript">HSC Transcript:</label>
+                        <input type="file" id="hsc-transcript" name="hsc-transcript" accept="image/*,.pdf" required>
+                        <span class="error" id="hsc-transcript-error">Please upload a file (max 2MB).</span>
+                        <div id="hsc-transcript-preview"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Declaration -->
+            <section class="form-section" aria-labelledby="declaration-heading">
+    <h2 id="declaration-heading" tabindex="0"><i class="fas fa-check"></i> Declaration</h2>
+    <div class="content">
+        <div class="declaration-container">
+            <input type="checkbox" id="declaration" name="declaration" required>
+            <label for="declaration">I certify that all information provided is correct.</label>
+        </div>
+        <span class="error" id="declaration-error">You must agree to proceed.</span>
+    </div>
+</section>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" id="save-draft" tabindex="0">Save Draft</button>
+                <button type="submit" id="submit-btn" tabindex="0">Submit Application</button>
+            </div>
+        </form>
+        <div id="loading">
+            <div class="loader">
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-center"></div>
+            </div>
+            Submitting...
+        </div>
+        <div id="loading-backdrop"></div>
+        <div id="review-modal">
+            <div class="header">Review Your Application</div>
+            <div class="content">
+                <div class="picture" id="review-picture"></div>
+                <div class="details" id="review-content"></div>
+            </div>
+            <div class="buttons">
+                <button id="cancel-submit">Cancel</button>
+                <button id="edit-submit">Edit</button>
+                <button id="print-review">Print</button>
+                <button id="confirm-submit">Confirm</button>
+            </div>
+        </div>
+        <div id="modal-backdrop"></div>
+        <div id="success-modal">
+            <i class="fas fa-check-circle"></i>
+            <h3>Application Submitted!</h3>
+            <p>Your application has been successfully submitted.</p>
+        </div>
+        <div id="error-modal">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Submission Error</h3>
+            <p id="error-message"></p>
+            <button id="close-error">OK</button>
+        </div>
+    </main>
+
+
+    <script>
+        const form = document.getElementById('admission-form');
+        const loading = document.getElementById('loading');
+        const loadingBackdrop = document.getElementById('loading-backdrop');
+        const reviewModal = document.getElementById('review-modal');
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const successModal = document.getElementById('success-modal');
+        const errorModal = document.getElementById('error-modal');
+    
+        // Collapsible sections
+        document.querySelectorAll('.form-section h2').forEach(header => {
+            header.addEventListener('click', () => {
+                const section = header.parentElement;
+                section.classList.toggle('collapsed');
+            });
+        });
+    
+        // Progress bar
+        function updateProgress() {
+            const inputs = form.querySelectorAll('input, select, textarea');
+            const total = inputs.length;
+            const filled = Array.from(inputs).filter(i => i.value.trim() || i.files?.length).length;
+            const percent = Math.round((filled / total) * 100);
+            document.getElementById('progress-fill').style.width = `${percent}%`;
+        }
+        form.addEventListener('input', updateProgress);
+        form.addEventListener('change', updateProgress);
+    
+        // File previews
+        let pictureUrl = '', sscTranscriptUrl = '', hscTranscriptUrl = '';
+        document.getElementById('picture').addEventListener('change', function(e) {
+            const preview = document.getElementById('picture-preview');
+            preview.innerHTML = '';
+            const file = e.target.files[0];
+            if (file) {
+                pictureUrl = URL.createObjectURL(file);
+                const img = document.createElement('img');
+                img.src = pictureUrl;
+                preview.appendChild(img);
+            }
+        });
+        document.getElementById('ssc-transcript').addEventListener('change', function(e) {
+            const preview = document.getElementById('ssc-transcript-preview');
+            preview.innerHTML = '';
+            const file = e.target.files[0];
+            if (file) {
+                sscTranscriptUrl = URL.createObjectURL(file);
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = sscTranscriptUrl;
+                    preview.appendChild(img);
+                } else {
+                    preview.textContent = file.name;
+                }
+            }
+        });
+        document.getElementById('hsc-transcript').addEventListener('change', function(e) {
+            const preview = document.getElementById('hsc-transcript-preview');
+            preview.innerHTML = '';
+            const file = e.target.files[0];
+            if (file) {
+                hscTranscriptUrl = URL.createObjectURL(file);
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = hscTranscriptUrl;
+                    preview.appendChild(img);
+                } else {
+                    preview.textContent = file.name;
+                }
+            }
+        });
+    
+        // File validation
+        ['picture', 'ssc-transcript', 'hsc-transcript'].forEach(id => {
+            document.getElementById(id).addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('File size must be under 2MB.');
+                        e.target.value = '';
+                        document.getElementById(`${id}-error`).style.display = 'block';
+                    } else if (!['image/jpeg', 'image/png', 'application/pdf'].includes(file.type)) {
+                        alert('Only JPG, PNG, or PDF files are allowed.');
+                        e.target.value = '';
+                        document.getElementById(`${id}-error`).style.display = 'block';
+                    } else {
+                        document.getElementById(`${id}-error`).style.display = 'none';
+                    }
+                }
+            });
+        });
+    
+        // Input sanitization
+        form.addEventListener('input', (e) => {
+            if (e.target.tagName === 'INPUT' && e.target.type === 'text') {
+                e.target.value = e.target.value.replace(/[<>&]/g, '');
+            }
+        });
+    
+        // Real-time validation
+        ['name', 'email', 'phone', 'father-nid', 'mother-nid'].forEach(id => {
+            const input = document.getElementById(id);
+            input.addEventListener('input', () => {
+                const error = document.getElementById(`${id}-error`);
+                if (id === 'email' && !/\S+@\S+\.\S+/.test(input.value)) {
+                    error.style.display = 'block';
+                } else if (id === 'phone' && !input.value.match(/^[0-9]{11}$/)) {
+                    error.style.display = 'block';
+                } else if ((id === 'father-nid' || id === 'mother-nid') && !input.value.match(/^[0-9]{10}$/)) {
+                    error.style.display = 'block';
+                } else if (!input.value.trim()) {
+                    error.style.display = 'block';
+                } else {
+                    error.style.display = 'none';
+                }
+            });
+        });
+    
+        // Auto-save
+        let timeout;
+        form.addEventListener('input', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => {
+                    if (form.elements[key].type !== 'file') data[key] = value;
+                });
+                localStorage.setItem('admissionDraft', JSON.stringify(data));
+                console.log('Auto-saved draft');
+            }, 2000);
+        });
+    
+        // Session timeout
+        let inactivityTimeout;
+        function resetTimer() {
+            clearTimeout(inactivityTimeout);
+            inactivityTimeout = setTimeout(() => {
+                alert('You’ve been inactive for 30 minutes. Please save your draft.');
+            }, 30 * 60 * 1000);
+        }
+        document.addEventListener('mousemove', resetTimer);
+        document.addEventListener('keypress', resetTimer);
+        resetTimer();
+    
+        // Helper function to convert file to base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]); // Remove "data:image/jpeg;base64," prefix
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+    
+        // Form validation and review
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            let isValid = true;
+    
+            const textFields = [
+                { id: 'name', errorId: 'name-error' },
+                { id: 'email', errorId: 'email-error' },
+                { id: 'father-name', errorId: 'father-name-error' },
+                { id: 'mother-name', errorId: 'mother-name-error' },
+                { id: 'institution', errorId: 'institution-error' }
+            ];
+            textFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                const error = document.getElementById(field.errorId);
+                if (!input.value.trim()) {
+                    error.style.display = 'block';
+                    isValid = false;
+                } else {
+                    error.style.display = 'none';
+                }
+            });
+    
+            const email = document.getElementById('email');
+            if (!/\S+@\S+\.\S+/.test(email.value)) {
+                document.getElementById('email-error').style.display = 'block';
+                isValid = false;
+            }
+    
+            const phone = document.getElementById('phone');
+            if (!phone.value.match(/^[0-9]{11}$/)) {
+                document.getElementById('phone-error').style.display = 'block';
+                isValid = false;
+            }
+    
+            ['father-nid', 'mother-nid'].forEach(id => {
+                const input = document.getElementById(id);
+                if (!input.value.match(/^[0-9]{10}$/)) {
+                    document.getElementById(`${id}-error`).style.display = 'block';
+                    isValid = false;
+                }
+            });
+    
+            const picture = document.getElementById('picture');
+            if (!picture.files.length) {
+                document.getElementById('picture-error').style.display = 'block';
+                isValid = false;
+            }
+    
+            const declaration = document.getElementById('declaration');
+            if (!declaration.checked) {
+                document.getElementById('declaration-error').style.display = 'block';
+                isValid = false;
+            }
+    
+            if (isValid) {
+                const formData = new FormData(form);
+                let summary = `
+                    <div class="section">
+                        <h4><i class="fas fa-user"></i> Personal Information</h4>
+                        <p>Name: ${formData.get('name')}</p>
+                        <p>Email: ${formData.get('email')}</p>
+                        <p>Date of Birth: ${formData.get('dob')}</p>
+                        <p>Gender: ${formData.get('gender')}</p>
+                        <p>Phone: ${formData.get('phone')}</p>
+                        <p>Address: ${formData.get('address').replace(/\n/g, '<br>')}</p>
+                        <p>Father's Name: ${formData.get('father-name')}</p>
+                        <p>Father's NID: ${formData.get('father-nid')}</p>
+                        <p>Mother's Name: ${formData.get('mother-name')}</p>
+                        <p>Mother's NID: ${formData.get('mother-nid')}</p>
+                    </div>
+                    <div class="section">
+                        <h4><i class="fas fa-graduation-cap"></i> SSC Details</h4>
+                        <p>Roll: ${formData.get('ssc-roll')}</p>
+                        <p>Registration: ${formData.get('ssc-reg')}</p>
+                        <p>GPA: ${formData.get('ssc-gpa')}</p>
+                        <p>Board: ${formData.get('ssc-board')}</p>
+                        <p>Year: ${formData.get('ssc-year')}</p>
+                        <p>Group: ${formData.get('ssc-group')}</p>
+                    </div>
+                    <div class="section">
+                        <h4><i class="fas fa-graduation-cap"></i> HSC Details</h4>
+                        <p>Roll: ${formData.get('hsc-roll')}</p>
+                        <p>Registration: ${formData.get('hsc-reg')}</p>
+                        <p>GPA: ${formData.get('hsc-gpa')}</p>
+                        <p>Board: ${formData.get('hsc-board')}</p>
+                        <p>Year: ${formData.get('hsc-year')}</p>
+                        <p>Group: ${formData.get('hsc-group')}</p>
+                    </div>
+                    <div class="section">
+                        <h4><i class="fas fa-book"></i> Program & Institution</h4>
+                        <p>Program: ${formData.get('program')}</p>
+                        <p>Quota: ${formData.get('quota') || 'None'}</p>
+                        <p>Institution: ${formData.get('institution')}</p>
+                    </div>
+                    <div class="section">
+                        <h4><i class="fas fa-check"></i> Declaration</h4>
+                        <p>Confirmed: ${formData.get('declaration') ? 'Yes' : 'No'}</p>
+                    </div>
+                `;
+                document.getElementById('review-content').innerHTML = summary;
+                document.getElementById('review-picture').innerHTML = `
+                    ${pictureUrl ? `<img src="${pictureUrl}" alt="Your Picture">` : '<p>No picture uploaded</p>'}
+                    ${sscTranscriptUrl && sscTranscriptUrl.includes('image') ? `<img src="${sscTranscriptUrl}" alt="SSC Transcript">` : `<p>SSC Transcript: ${sscTranscriptUrl ? 'PDF Uploaded' : 'Not Uploaded'}</p>`}
+                    ${hscTranscriptUrl && hscTranscriptUrl.includes('image') ? `<img src="${hscTranscriptUrl}" alt="HSC Transcript">` : `<p>HSC Transcript: ${hscTranscriptUrl ? 'PDF Uploaded' : 'Not Uploaded'}</p>`}
+                `;
+                reviewModal.style.display = 'block';
+                modalBackdrop.style.display = 'block';
+            } else {
+                document.getElementById('error-message').textContent = 'Please correct the errors in the form.';
+                errorModal.style.display = 'block';
+                modalBackdrop.style.display = 'block';
+            }
+        });
+    
+        // Review modal actions
+        document.getElementById('confirm-submit').addEventListener('click', async () => {
+            if (confirm('Are you sure you want to submit and reset the form?')) {
+                loading.style.display = 'block';
+                loadingBackdrop.style.display = 'block';
+                reviewModal.style.display = 'none';
+                modalBackdrop.style.display = 'none';
+    
+                const formData = new FormData(form);
+                const pictureFile = document.getElementById('picture').files[0];
+                const sscTranscriptFile = document.getElementById('ssc-transcript').files[0];
+                const hscTranscriptFile = document.getElementById('hsc-transcript').files[0];
+    
+                const data = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    dob: formData.get('dob'),
+                    gender: formData.get('gender'),
+                    phone: formData.get('phone'),
+                    address: formData.get('address'),
+                    fatherName: formData.get('father-name'),
+                    fatherNID: formData.get('father-nid'),
+                    motherName: formData.get('mother-name'),
+                    motherNID: formData.get('mother-nid'),
+                    sscRoll: formData.get('ssc-roll'),
+                    sscReg: formData.get('ssc-reg'),
+                    sscGPA: formData.get('ssc-gpa'),
+                    sscBoard: formData.get('ssc-board'),
+                    sscYear: formData.get('ssc-year'),
+                    sscGroup: formData.get('ssc-group'),
+                    hscRoll: formData.get('hsc-roll'),
+                    hscReg: formData.get('hsc-reg'),
+                    hscGPA: formData.get('hsc-gpa'),
+                    hscBoard: formData.get('hsc-board'),
+                    hscYear: formData.get('hsc-year'),
+                    hscGroup: formData.get('hsc-group'),
+                    program: formData.get('program'),
+                    quota: formData.get('quota') || 'None',
+                    institution: formData.get('institution'),
+                    declaration: formData.get('declaration') === 'on'
+                };
+    
+                // Convert files to base64
+                if (pictureFile) {
+                    data.picture = {
+                        name: pictureFile.name,
+                        mimeType: pictureFile.type,
+                        data: await fileToBase64(pictureFile)
+                    };
+                }
+                if (sscTranscriptFile) {
+                    data.sscTranscript = {
+                        name: sscTranscriptFile.name,
+                        mimeType: sscTranscriptFile.type,
+                        data: await fileToBase64(sscTranscriptFile)
+                    };
+                }
+                if (hscTranscriptFile) {
+                    data.hscTranscript = {
+                        name: hscTranscriptFile.name,
+                        mimeType: hscTranscriptFile.type,
+                        data: await fileToBase64(hscTranscriptFile)
+                    };
+                }
+    
+                fetch('https://script.google.com/macros/s/AKfycbxYnKdXOHHtOhztwVWsvWazQod_7pWF1FPWO-9J8rLofWinaAc7ijy6VRmw7QcQB8mA/exec', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.text())
+                .then(result => {
+                    if (result === 'Success') {
+                        loading.style.display = 'none';
+                        loadingBackdrop.style.display = 'none';
+                        successModal.style.display = 'block';
+                        setTimeout(() => {
+                            successModal.style.display = 'none';
+                            form.reset();
+                            document.getElementById('picture-preview').innerHTML = '';
+                            document.getElementById('ssc-transcript-preview').innerHTML = '';
+                            document.getElementById('hsc-transcript-preview').innerHTML = '';
+                            pictureUrl = sscTranscriptUrl = hscTranscriptUrl = '';
+                            updateProgress();
+                        }, 2000);
+                    } else {
+                        throw new Error('Submission failed');
+                    }
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    loadingBackdrop.style.display = 'none';
+                    document.getElementById('error-message').textContent = 'An error occurred while submitting.';
+                    errorModal.style.display = 'block';
+                });
+            }
+        });
+    
+        document.getElementById('cancel-submit').addEventListener('click', () => {
+            reviewModal.style.display = 'none';
+            modalBackdrop.style.display = 'none';
+        });
+    
+        document.getElementById('edit-submit').addEventListener('click', () => {
+            reviewModal.style.display = 'none';
+            modalBackdrop.style.display = 'none';
+        });
+    
+        document.getElementById('print-review').addEventListener('click', () => {
+            const printContent = document.getElementById('review-modal').innerHTML;
+            const printWindow = window.open('', '', 'width=800,height=600');
+            printWindow.document.write(`<html><body>${printContent}</body></html>`);
+            printWindow.document.close();
+            printWindow.print();
+        });
+    
+        document.getElementById('close-error').addEventListener('click', () => {
+            errorModal.style.display = 'none';
+            modalBackdrop.style.display = 'none';
+        });
+    
+        // Load draft
+        const savedDraft = localStorage.getItem('admissionDraft');
+        if (savedDraft) {
+            const data = JSON.parse(savedDraft);
+            Object.keys(data).forEach(key => {
+                const input = form.elements[key];
+                if (input && input.type !== 'file') {
+                    input.value = data[key];
+                }
+            });
+            updateProgress();
+        }
+    </script>
+</body>
+</html>

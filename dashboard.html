@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - University Admission Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.6.3/tabletop.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .dashboard {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #6a11cb;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f7f9fc;
+            border-radius: 8px;
+        }
+        h2 {
+            color: #2575fc;
+            margin-top: 0;
+        }
+        p {
+            margin: 5px 0;
+            color: #333;
+        }
+        img {
+            max-width: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 12px 25px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1><i class="fas fa-tachometer-alt"></i> Your Application Dashboard</h1>
+        <div id="data"></div>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+
+        const publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1EADmQuU5x7yAMDL6KZieVeiFpa54FId2IIeWaQNF9xM/pubhtml';
+
+        Tabletop.init({
+            key: publicSpreadsheetUrl,
+            callback: showData,
+            simpleSheet: true
+        });
+
+        function showData(data) {
+            const userData = data.find(row => row.Name === user.name && row.Phone === user.phone);
+            const display = document.getElementById('data');
+            if (userData) {
+                display.innerHTML = `
+                    <div class="section">
+                        <h2>Personal Information</h2>
+                        <p>Name: ${userData.Name}</p>
+                        <p>Email: ${userData.Email}</p>
+                        <p>Date of Birth: ${userData.DOB}</p>
+                        <p>Gender: ${userData.Gender}</p>
+                        <p>Phone: ${userData.Phone}</p>
+                        <p>Address: ${userData.Address}</p>
+                        <p>Father's Name: ${userData.FatherName}</p>
+                        <p>Father's NID: ${userData.FatherNID}</p>
+                        <p>Mother's Name: ${userData.MotherName}</p>
+                        <p>Mother's NID: ${userData.MotherNID}</p>
+                    </div>
+                    <div class="section">
+                        <h2>SSC Details</h2>
+                        <p>Roll: ${userData.SSCRoll}</p>
+                        <p>Registration: ${userData.SSCReg}</p>
+                        <p>GPA: ${userData.SSCGPA}</p>
+                        <p>Board: ${userData.SSCBoard}</p>
+                        <p>Year: ${userData.SSCYear}</p>
+                        <p>Group: ${userData.SSCGroup}</p>
+                    </div>
+                    <div class="section">
+                        <h2>HSC Details</h2>
+                        <p>Roll: ${userData.HSCRoll}</p>
+                        <p>Registration: ${userData.HSCReg}</p>
+                        <p>GPA: ${userData.HSCGPA}</p>
+                        <p>Board: ${userData.HSCBoard}</p>
+                        <p>Year: ${userData.HSCYear}</p>
+                        <p>Group: ${userData.HSCGroup}</p>
+                    </div>
+                    <div class="section">
+                        <h2>Program & Institution</h2>
+                        <p>Program: ${userData.Program}</p>
+                        <p>Quota: ${userData.Quota}</p>
+                        <p>Institution: ${userData.Institution}</p>
+                    </div>
+                    <div class="section">
+                        <h2>Uploads</h2>
+                        ${userData.PictureURL ? `<p>Picture: <a href="${userData.PictureURL}" target="_blank"><img src="${userData.PictureURL}" alt="Picture"></a></p>` : '<p>No picture</p>'}
+                        ${userData.SSCTranscriptURL ? `<p>SSC Transcript: <a href="${userData.SSCTranscriptURL}" target="_blank">${userData.SSCTranscriptURL.includes('image') ? '<img src="' + userData.SSCTranscriptURL + '" alt="SSC Transcript">' : 'View PDF'}</a></p>` : '<p>No SSC transcript</p>'}
+                        ${userData.HSCTranscriptURL ? `<p>HSC Transcript: <a href="${userData.HSCTranscriptURL}" target="_blank">${userData.HSCTranscriptURL.includes('image') ? '<img src="' + userData.HSCTranscriptURL + '" alt="HSC Transcript">' : 'View PDF'}</a></p>` : '<p>No HSC transcript</p>'}
+                    </div>
+                    <div class="section">
+                        <h2>Declaration</h2>
+                        <p>Confirmed: ${userData.Declaration}</p>
+                    </div>
+                    <div class="section">
+                        <h2>Submission</h2>
+                        <p>Timestamp: ${userData.Timestamp}</p>
+                    </div>
+                `;
+            } else {
+                display.innerHTML = '<p>No application data found.</p>';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
